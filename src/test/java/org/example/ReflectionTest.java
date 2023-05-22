@@ -7,7 +7,9 @@ import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.annotation.Annotation;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -20,12 +22,16 @@ public class ReflectionTest {
     @Test
     void controllerScan() {
         // org.example package 밑에 있는 class에 대해서 getTypesAnnotatedWith() 안에 있는 애노테이션이 붙은 class를 찾아서 해당 Hashset에 담는 코드
+        Set<Class<?>> beans = getTypesAnnotatedWith(List.of(Controller.class, Service.class));
+
+        logger.debug("beans : [{}]", beans);
+    }
+
+    private static Set<Class<?>> getTypesAnnotatedWith(List<Class<? extends Annotation>> annotations) {
         Reflections reflections = new Reflections("org.example");
 
         Set<Class<?>> beans = new HashSet<>();
-        beans.addAll(reflections.getTypesAnnotatedWith(Controller.class));
-        beans.addAll(reflections.getTypesAnnotatedWith(Service.class));
-
-        logger.debug("beans : [{}]", beans);
+        annotations.forEach(annotation -> beans.addAll(reflections.getTypesAnnotatedWith(annotation)));
+        return beans;
     }
 }
